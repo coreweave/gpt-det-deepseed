@@ -31,4 +31,3 @@ RUN python3.8 -m pip install -r requirements-sparseattention.txt
 ## Install APEX
 #RUN python3.8 -m pip install --no-cache-dir -v --disable-pip-version-check --no-cache-dir \
 #    --global-option="--cpp_ext" --global-option="--cuda_ext" \
-#    git+https://github.com/NVIDIA/apex.git@a651e2c24ecf97cbf367fd3f330df36760e1c597

@@ -1,31 +1,34 @@
 FROM coreweave/nccl-tests:2022-10-16_00-04-11.692_EDT
 
 # Run updates and install packages for build
+RUN echo "Dpkg::Options { "--force-confdef"; "--force-confnew"; };" > /etc/apt/apt.conf.d/local
 RUN apt-get -qq update && \
     apt-get -qq install -y --no-install-recommends software-properties-common && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
     add-apt-repository universe && \
     apt-get -qq update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata build-essential daemontools && \
     apt-get install -y --no-install-recommends \
-       python3-pip \
-       python3-dev \
-       git \
-       python3-setuptools \
-       python3-setuptools-rust \
-       rustc && \
-    apt-get clean
+       python3.8 \
+       python3.8-distutils \
+       python3.8-dev \
+       python3.8-venv \
+       git && \
+    apt-get clean && \
+    python3.8 -m ensurepip --default-pip && \
+    python3.8 -m pip install --no-cache-dir --upgrade pip
 
-# #### Python packages
-# RUN pip3 install --upgrade pip
-# RUN pip3 install --no-cache-dir torch==1.11.0+cu113 \
-#     -f https://download.pytorch.org/whl/torch_stable.html
-# COPY requirements/requirements.txt .
-# RUN pip3 install --no-cache-dir -r requirements.txt
-# COPY requirements/requirements-onebitadam.txt .
-# RUN pip3 install --no-cache-dir -r requirements-onebitadam.txt
-# COPY requirements/requirements-sparseattention.txt .
-# RUN pip3 install --no-cache-dir -r requirements-sparseattention.txt
+#### Python packages
+RUN python3.8 -m pip install --no-cache-dir torch==1.11.0+cu113 \
+    -f https://download.pytorch.org/whl/torch_stable.html
+COPY requirements/requirements.txt .
+RUN python3.8 -m pip install --no-cache-dir -r requirements.txt
+COPY requirements/requirements-onebitadam.txt .
+RUN python3.8 -m pip install --no-cache-dir -r requirements-onebitadam.txt
+COPY requirements/requirements-sparseattention.txt .
+RUN python3.8 -m pip install -r requirements-sparseattention.txt
 
-# ## Install APEX
-# RUN pip install --no-cache-dir -v --disable-pip-version-check --no-cache-dir \
-#     --global-option="--cpp_ext" --global-option="--cuda_ext" \
-#     git+https://github.com/NVIDIA/apex.git@a651e2c24ecf97cbf367fd3f330df36760e1c597
+## Install APEX
+#RUN python3.8 -m pip install --no-cache-dir -v --disable-pip-version-check --no-cache-dir \
+#    --global-option="--cpp_ext" --global-option="--cuda_ext" \
+#    git+https://github.com/NVIDIA/apex.git@a651e2c24ecf97cbf367fd3f330df36760e1c597

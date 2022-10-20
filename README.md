@@ -1,1 +1,1 @@
-# gpt-det-deepseed
+This repository is a "WIP" to enable deepspeed GPT models to run on determined.ai without the extra bells and whistles (tracking, metrics, visualization etc.). You can still access logs and visualize all metrics via WanDB.

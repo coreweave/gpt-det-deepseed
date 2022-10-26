@@ -10,8 +10,9 @@ environment:
         - NCCL_SOCKET_IFNAME=ens,eth,ib
     force_pull_image: true
     image:
-      gpu: liamdetermined/gpt-neox
-      # gpu: rtalaricw/gpt_neox:v0.5
+      # UNCOMMENT if using determined.ai
+      # gpu: liamdetermined/gpt-neox
+      gpu: rtalaricw/torch1.12.1_cuda11.6:det-0.19.2-v0.0
 resources:
   slots_per_trial: 8
 searcher:
@@ -24,10 +25,11 @@ min_validation_period:
     batches: 5000
 max_restarts: 0
 entrypoint:
+  # UNCOMMENT if using determined.ai to use their launcher
   # - python3
   # - -m
   # - determined.launch.deepspeed
-  - python3.8
+  - /usr/bin/python3.8
   - /gpt-ds/deepy.py 
   - /gpt-ds/train.py
   - /gpt-ds/small.yml

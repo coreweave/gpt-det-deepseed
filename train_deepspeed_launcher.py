@@ -43,7 +43,6 @@ if __name__ == "__main__":
 
         neox_args = NeoXArgs.from_ymls(
             [
-                # "determined_cluster.yml",
                 "small.yml",
             ],
             overwrite_values={'hostfile': shared_hostfile}

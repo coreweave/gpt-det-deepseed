@@ -13,6 +13,6 @@ You can still access logs and visualize all metrics via WanDB.
 # Instructions to Run
 
 * ```git clone --recurse-submodules https://github.com/coreweave/gpt-det-deepseed.git```
-* Run: ```det experiment create launcher.yml .``` from the root of the repository.
+* Run: ```det experiment create core_api.yml .``` from the root of the repository.
 
 

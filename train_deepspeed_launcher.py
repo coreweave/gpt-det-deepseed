@@ -18,29 +18,38 @@
 """Train"""
 from megatron.neox_arguments import NeoXArgs
 from megatron.training import pretrain
-import time
 import glob
 import shutil
 import os
+import determined as det
 
 if __name__ == "__main__":
-    # Change path to the mount point for your determined.ai deployment
-    shared_hostfile = "/mnt/finetune-gpt-neox/hostfile.txt"
+    distributed = det.core.DistributedContext.from_deepspeed()
 
-    if os.environ["RANK"]=="0":
-        hostfile = glob.glob("/tmp/hostfile*.txt")[0]
-        shutil.copyfile(hostfile, shared_hostfile)
-    
-    while not os.path.exists(shared_hostfile):
-        time.sleep(1)
+    with det.core.init(distributed=distributed) as context:
+        shared_hostfile = "/mnt/finetune-gpt-neox/hostfile.txt"
+        if os.environ["RANK"]=="0":
+            try:
+                os.remove(shared_hostfile)
+            except:
+                pass
+            assert not os.path.exists(shared_hostfile)
+            hostfile = glob.glob("/tmp/hostfile*.txt")[0]
+            shutil.copyfile(hostfile, shared_hostfile)
 
-    neox_args = NeoXArgs.from_ymls(
-        [
-            "small.yml",
-        ],
-        overwrite_values={'hostfile': shared_hostfile}
-    )
-    neox_args.configure_distributed_args()
-    neox_args.build_tokenizer()  # tokenizer needs to be build in training in order to set the padding vocab
-    neox_args.initialize_tensorboard_writer()  # is initialized if tensorboard directory is defined
-    pretrain(neox_args=neox_args)
+        # We synchronize here to make sure shared_hostfile is ready for all nodes.
+        context.distributed.broadcast(1)
+        assert os.path.exists(shared_hostfile)
+
+        neox_args = NeoXArgs.from_ymls(
+            [
+                # "determined_cluster.yml",
+                "small.yml",
+            ],
+            overwrite_values={'hostfile': shared_hostfile}
+        )
+        neox_args.configure_distributed_args()
+        neox_args.build_tokenizer()  # tokenizer needs to be build in training in order to set the padding vocab
+        neox_args.initialize_tensorboard_writer()  # is initialized if tensorboard directory is defined
+        print(neox_args)
+        pretrain(neox_args=neox_args)

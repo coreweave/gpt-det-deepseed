@@ -8,6 +8,7 @@ environment:
   image:
     gpu: liamdetermined/gpt-neox
 resources:
+  resource_pool: A40
   slots_per_trial: 16
 searcher:
   name:  single
